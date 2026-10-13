@@ -40,4 +40,18 @@ public final class Sources {
         if (item.equals("iron_ore")) return List.of("raw_iron");
         return List.of(item);
     }
+
+    private static final java.util.Set<String> GATHERABLE = java.util.Set.of("cobblestone", "dirt", "sand", "gravel", "coal",
+            "raw_iron", "raw_gold", "raw_copper", "diamond", "emerald", "redstone", "lapis_lazuli", "clay_ball", "flint",
+            "netherrack", "obsidian", "andesite", "diorite", "granite", "sandstone", "#logs", "quartz", "wheat");
+
+    /** Can this item be obtained by mining/picking it up (as opposed to crafting or silk-touch)? */
+    public static boolean gatherable(String item) {
+        return GATHERABLE.contains(item) || item.endsWith("_log");
+    }
+
+    /** Can the agent plausibly produce this item on its own (gather, craft or smelt)? */
+    public static boolean obtainable(String item) {
+        return gatherable(item) || Recipes.craftFor(item) != null || Recipes.smeltFor(item) != null;
+    }
 }

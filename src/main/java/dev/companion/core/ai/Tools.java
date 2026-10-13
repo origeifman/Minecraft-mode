@@ -20,7 +20,7 @@ public final class Tools {
                 t("follow", "[player]", "Follow a player continuously (nearest player if omitted). Runs in background until stop."),
                 t("stop", "", "Cancel everything and stand still."),
                 t("gather", "item,count", "Collect raw items/blocks (logs, cobblestone, raw_iron, coal, diamond, sand...). Auto-crafts the needed tool and stores items when the inventory is full.", "item", "count"),
-                t("craft", "item,count", "Craft an item. Missing ingredients, crafting table, furnace and tools are gathered/made automatically.", "item", "count"),
+                t("craft", "item,count", "Make sure the inventory holds at least `count` of an item (crafting it). Missing ingredients, crafting table, furnace and tools are gathered/made automatically.", "item", "count"),
                 t("smelt", "item,count", "Smelt (iron_ingot, gold_ingot, glass, stone...) using a furnace; gathers inputs and fuel as needed.", "item", "count"),
                 t("ensure_tool", "tool", "Make sure a tool (e.g. iron_pickaxe) is in the inventory, crafting it if missing.", "tool"),
                 t("schematic_info", "", "Report the active Litematica schematic, materials needed vs inventory vs chests."),

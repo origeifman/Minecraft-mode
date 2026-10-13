@@ -46,6 +46,8 @@ public final class CompanionConfig {
     /** Optional chat command sent before a printer-mode build, e.g. a Litematica-Printer toggle. */
     public String printerEnableCommand = "";
     public double reach = 4.4;
+    /** Let Baritone place scaffolding blocks while building (can leave stray blocks). */
+    public boolean buildAllowScaffold = false;
 
     public static CompanionConfig load(Path file) {
         try {
