@@ -1,0 +1,23 @@
+{
+  "schemaVersion": 1,
+  "id": "companion",
+  "version": "${version}",
+  "name": "Autonomous Companion",
+  "description": "An LLM-driven (Ollama, ReAct) autonomous agent that mines, crafts, stores, builds Litematica schematics and survives on its own, using Baritone for navigation.",
+  "authors": ["origeifman"],
+  "license": "MIT",
+  "environment": "client",
+  "entrypoints": {
+    "client": ["dev.companion.game.CompanionMod"]
+  },
+  "depends": {
+    "fabricloader": ">=0.15.0",
+    "minecraft": "~1.20.1",
+    "java": ">=17",
+    "fabric-api": "*"
+  },
+  "suggests": {
+    "baritone": "*",
+    "litematica": "*"
+  }
+}
