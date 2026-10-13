@@ -34,6 +34,18 @@ Prefixes (config `triggers`, default `!`, `@ai `, `ai,`): `#` is Baritone's own 
 | Survival | `Safety`: auto-eat, flee at low health / from creepers, melee when armed, back off from lava, surface when drowning. Baritone's `avoidance` handles lava/cliffs in pathing. The running task is paused and resumed around reflexes |
 | Companion | follow a player, goto coords/waypoints, deliver items (drops them at the player), deposit to chests, `secure_area` |
 
+## Install (step by step)
+
+1. Install **Fabric Loader** for Minecraft **1.20.1** and put **Fabric API** in `mods/`.
+2. Install **Ollama** from https://ollama.com/download (the mod cannot ship it: it is a separate program).
+3. Put **Baritone** (Fabric 1.20.1 build, https://github.com/cabaletta/baritone/releases) in `mods/`. Optional: **Litematica** + **MaLiLib**.
+4. Build this mod (below) and copy `build/libs/autonomous-companion-1.0.0.jar` into `mods/`.
+5. Start Minecraft, join a world, and type `!setup` in chat. The mod starts `ollama serve` if needed and downloads the
+   configured model (default `llama3.1:8b`, ~5 GB). Then `!help`, e.g. `!gather 10 oak logs`.
+
+On every join the mod tells you which of Baritone/Litematica are missing. Baritone and Litematica are not bundled
+(their jars could not be downloaded/verified when this was written).
+
 ## Build
 
 ```

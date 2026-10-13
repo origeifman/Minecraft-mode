@@ -105,6 +105,47 @@ class AiTest {
     }
 
     @Test
+    void setupPullsMissingModel() throws Exception {
+        HttpServer srv = HttpServer.create(new InetSocketAddress("127.0.0.1", 0), 0);
+        final boolean[] pulled = {false};
+        srv.createContext("/api/tags", ex -> {
+            String body = pulled[0] ? "{\"models\":[{\"name\":\"tiny:latest\"}]}" : "{\"models\":[]}";
+            byte[] r = body.getBytes(StandardCharsets.UTF_8);
+            ex.sendResponseHeaders(200, r.length);
+            ex.getResponseBody().write(r);
+            ex.close();
+        });
+        srv.createContext("/api/pull", ex -> {
+            pulled[0] = true;
+            byte[] r = "{\"status\":\"pulling\"}\n{\"status\":\"success\"}".getBytes(StandardCharsets.UTF_8);
+            ex.sendResponseHeaders(200, r.length);
+            ex.getResponseBody().write(r);
+            ex.close();
+        });
+        srv.start();
+        try {
+            OllamaClient c = new OllamaClient("http://127.0.0.1:" + srv.getAddress().getPort(), "tiny", 0.1, 5);
+            List<String> said = new ArrayList<>();
+            assertNull(OllamaSetup.run(c, "tiny", said::add));
+            assertTrue(pulled[0]);
+            assertTrue(said.stream().anyMatch(m -> m.contains("ready")));
+            said.clear();
+            assertNull(OllamaSetup.run(c, "tiny", said::add)); // already installed: no second pull message
+            assertTrue(said.isEmpty());
+        } finally {
+            srv.stop(0);
+        }
+    }
+
+    @Test
+    void setupRefusesToStartRemoteOllama() {
+        OllamaClient c = new OllamaClient("http://203.0.113.9:11434", "m", 0.1, 1);
+        String err = OllamaSetup.run(c, "m", x -> {});
+        assertNotNull(err);
+        assertTrue(err.contains("not a local address"));
+    }
+
+    @Test
     void ollamaDownFailsAsync() {
         OllamaClient c = new OllamaClient("http://127.0.0.1:1", "m", 0.1, 2);
         assertThrows(Exception.class, () -> c.chat(List.of(ChatMessage.user("x"))).get(5, TimeUnit.SECONDS));

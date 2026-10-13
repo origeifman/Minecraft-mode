@@ -42,6 +42,7 @@ public final class CompanionMod implements ClientModInitializer {
                 e.printStackTrace();
             }
         });
+        ClientPlayConnectionEvents.JOIN.register((handler, sender, client) -> client.execute(agent::joinNotice));
         ClientPlayConnectionEvents.DISCONNECT.register((handler, client) -> agent.stopAll(null));
     }
 }

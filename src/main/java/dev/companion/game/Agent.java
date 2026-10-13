@@ -67,11 +67,13 @@ public final class Agent {
         String c = cmd.toLowerCase().replaceAll("[.!]+$", "");
         if (c.isEmpty() || c.equals("help")) {
             G.say("Say what you want in plain English, e.g. \"" + cfg.triggers.get(0) + "gather 64 iron ore\", \"build\", \"secure the area\". "
-                    + "Other: stop, status, chests, reload. Key K = emergency stop.");
+                    + "Other: stop, status, chests, setup (start Ollama + download the model), reload. Key K = emergency stop.");
         } else if (c.matches("^(stop|cancel|abort|halt|enough)$")) {
             stopAll("Stopped.");
         } else if (c.equals("status")) {
             G.say(snapshot());
+        } else if (c.equals("setup")) {
+            setupOllama();
         } else if (c.equals("chests")) {
             G.say(state.chests.summary(30));
         } else if (c.equals("reload")) {
@@ -80,6 +82,27 @@ public final class Agent {
             startGoal(cmd);
         }
         return true;
+    }
+
+    /** Start Ollama if needed and download the configured model, off the game thread. */
+    public void setupOllama() {
+        G.say("Checking Ollama (" + cfg.ollamaUrl + ", model " + cfg.model + ")...");
+        OllamaClient client = new OllamaClient(cfg.ollamaUrl, cfg.model, cfg.temperature, cfg.llmTimeoutSeconds);
+        Thread t = new Thread(() -> {
+            String err = OllamaSetup.run(client, cfg.model, m -> G.mc().execute(() -> G.say(m)));
+            G.mc().execute(() -> G.say(err == null ? "\u00a7aOllama is ready. Give me a task!" : "\u00a7c" + err));
+        }, "companion-ollama-setup");
+        t.setDaemon(true);
+        t.start();
+    }
+
+    /** One-time notice after joining a world about missing companion mods. */
+    public void joinNotice() {
+        StringBuilder sb = new StringBuilder();
+        if (!Baritone.available()) sb.append("Baritone is missing (needed to move/mine/build): https://github.com/cabaletta/baritone/releases . ");
+        if (!Litematica.loaded()) sb.append("Litematica not found (optional, for schematics): https://modrinth.com/mod/litematica . ");
+        sb.append("Type " + cfg.triggers.get(0) + "setup to start Ollama and fetch the model, " + cfg.triggers.get(0) + "help for commands.");
+        G.say(sb.toString());
     }
 
     // ------------------------------------------------------------------ lifecycle
@@ -157,7 +180,7 @@ public final class Agent {
             thinking = false;
             if (err != null) {
                 Throwable cause = err.getCause() != null ? err.getCause() : err;
-                if (first) { offlinePlan("Ollama unreachable or invalid (" + cause.getMessage() + ")"); return; }
+                if (first) { offlinePlan("Ollama unreachable or invalid (" + cause.getMessage() + "; type " + cfg.triggers.get(0) + "setup)"); return; }
                 if (++llmErrors <= 2) { G.say("§eLLM error, retrying: " + cause.getMessage()); requestNext(observation); return; }
                 endGoal("Giving up: " + cause.getMessage());
                 return;

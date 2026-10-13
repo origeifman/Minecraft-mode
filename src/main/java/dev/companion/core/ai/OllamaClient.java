@@ -73,5 +73,25 @@ public final class OllamaClient implements Llm {
         });
     }
 
+    /** Download a model (blocks the future until finished; models are several GB, so the timeout is long). */
+    public CompletableFuture<String> pull(String modelName) {
+        JsonObject body = new JsonObject();
+        body.addProperty("name", modelName);
+        body.addProperty("stream", false);
+        HttpRequest req = HttpRequest.newBuilder(URI.create(baseUrl + "/api/pull"))
+                .timeout(Duration.ofMinutes(60))
+                .header("Content-Type", "application/json")
+                .POST(HttpRequest.BodyPublishers.ofString(body.toString()))
+                .build();
+        return http.sendAsync(req, HttpResponse.BodyHandlers.ofString()).thenApply(resp -> {
+            if (resp.statusCode() != 200) throw new IllegalStateException("pull failed, HTTP " + resp.statusCode() + ": " + abbreviate(resp.body()));
+            JsonObject root = JsonParser.parseString(resp.body().lines().reduce((a, b) -> b).orElse("{}")).getAsJsonObject();
+            if (root.has("error")) throw new IllegalStateException(root.get("error").getAsString());
+            return root.has("status") ? root.get("status").getAsString() : "ok";
+        });
+    }
+
+    public String baseUrl() { return baseUrl; }
+
     private static String abbreviate(String s) { return s.length() > 200 ? s.substring(0, 200) + "..." : s; }
 }
