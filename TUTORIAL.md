@@ -3,6 +3,12 @@
 You get a project folder, not a ready-made `.jar`. The mod must be compiled once on your own computer.
 This takes about 10 minutes plus the model download.
 
+## Fastest way: one command
+
+From the unzipped project folder: **Windows** `powershell -ExecutionPolicy Bypass -File install.ps1`, **Mac/Linux** `bash install.sh`.
+It installs Java/Ollama/Fabric/Fabric API/Baritone/Litematica, builds the mod, copies it into `mods` and downloads the model.
+If a step prints a yellow warning, do that part by hand using Parts 1-2 below.
+
 ## Part 1 - Install the things you need
 
 1. **Java 17 or newer**: https://adoptium.net (pick "Temurin 17" or 21). Check with `java -version` in a terminal.
